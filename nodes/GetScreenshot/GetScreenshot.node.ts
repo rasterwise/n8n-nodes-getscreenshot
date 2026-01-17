@@ -199,14 +199,13 @@ async function executeScreenshot(
 	}
 
 	// Make the API request
-	const response = await this.helpers.requestWithAuthentication.call(
+	const response = await this.helpers.httpRequestWithAuthentication.call(
 		this,
 		'getScreenshotApi',
 		{
 			method: 'GET',
 			url: 'https://api.rasterwise.com/v1/get-screenshot',
 			qs: queryParams,
-			json: true,
 		},
 	);
 
@@ -238,14 +237,6 @@ async function executeScreenshot(
 		);
 	}
 
-	// Fetch the binary data
-	const binaryResponse = await this.helpers.request({
-		method: 'GET',
-		url: screenshotUrl,
-		encoding: null,
-		resolveWithFullResponse: true,
-	});
-
 	// Determine MIME type and file extension
 	let mimeType: string;
 	let fileExtension: string;
@@ -264,9 +255,16 @@ async function executeScreenshot(
 		fileExtension = 'png';
 	}
 
+	// Fetch the binary data
+	const binaryResponse = await this.helpers.httpRequest({
+		method: 'GET',
+		url: screenshotUrl,
+		encoding: 'arraybuffer',
+	} as any);
+
 	// Create binary data object
 	const binaryData = await this.helpers.prepareBinaryData(
-		Buffer.from(binaryResponse.body),
+		Buffer.from(binaryResponse as Buffer),
 		`screenshot.${fileExtension}`,
 		mimeType,
 	);
@@ -295,13 +293,12 @@ async function executeUsage(
 	this: IExecuteFunctions,
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const response = await this.helpers.requestWithAuthentication.call(
+	const response = await this.helpers.httpRequestWithAuthentication.call(
 		this,
 		'getScreenshotApi',
 		{
 			method: 'GET',
 			url: 'https://api.rasterwise.com/v1/usage',
-			json: true,
 		},
 	);
 
