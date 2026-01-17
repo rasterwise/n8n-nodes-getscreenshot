@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-getscreenshot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "n8n community node for GetScreenshot API - capture screenshots and PDFs of web pages",
   "keywords": [
     "n8n-community-node-package",
