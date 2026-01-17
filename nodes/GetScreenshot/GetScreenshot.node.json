@@ -1,0 +1,22 @@
+{
+	"node": "n8n-nodes-base.getScreenshot",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Utility"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.rasterwise.com"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://docs.rasterwise.com"
+			}
+		]
+	},
+	"alias": ["screenshot", "capture", "webpage", "pdf", "image", "web capture"],
+	"subcategories": {
+		"Utility": ["Data Transformation"]
+	}
+}
