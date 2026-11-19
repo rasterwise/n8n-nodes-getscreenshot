@@ -1,5 +1,11 @@
 import type { INodeProperties } from 'n8n-workflow';
 
+// Descriptions are written for two readers: a person in the n8n editor and an LLM
+// that fills the parameters when the node is used as an AI Agent tool. Each one says
+// what the value is, its format, an example and when to leave it empty.
+// Parameter names, option values and defaults are part of the saved-workflow contract
+// and must not change.
+
 export const screenshotProperties: INodeProperties[] = [
 	// Essential Fields (Always Visible)
 	{
@@ -9,7 +15,8 @@ export const screenshotProperties: INodeProperties[] = [
 		default: '',
 		required: true,
 		placeholder: 'https://example.com',
-		description: 'The URL of the webpage to capture',
+		description:
+			'Full address of the public web page to capture, including the protocol, e.g. https://example.com/pricing. Must start with http:// or https://. Shortened links (bit.ly and similar) are rejected, and pages on localhost or a private network cannot be reached.',
 		displayOptions: {
 			show: {
 				operation: ['screenshot'],
@@ -21,7 +28,8 @@ export const screenshotProperties: INodeProperties[] = [
 		name: 'preset',
 		type: 'options',
 		default: 'none',
-		description: 'Select a device preset or use custom dimensions',
+		description:
+			'Device to emulate. A preset sets the viewport size and, for phones, a mobile user agent. Keep Custom Dimensions (value: none) for the default 1280x800 desktop viewport or to set Width and Height under Options. Other values: iphone12, iphonex, iphone678, iphone678_plus, pixel2, pixel2_xl, ipad, ipadpro, wxga_s, wxga_l, sxga, wsxga_plus.',
 		displayOptions: {
 			show: {
 				operation: ['screenshot'],
@@ -87,7 +95,8 @@ export const screenshotProperties: INodeProperties[] = [
 		name: 'outputFormat',
 		type: 'options',
 		default: 'png',
-		description: 'The format of the captured image',
+		description:
+			'File type to produce: png (default, lossless image), jpeg (smaller image file) or pdf (an A4 PDF of the page instead of an image). The webp value is not officially supported by the API; use png or jpeg.',
 		displayOptions: {
 			show: {
 				operation: ['screenshot'],
@@ -117,7 +126,21 @@ export const screenshotProperties: INodeProperties[] = [
 		name: 'fullPage',
 		type: 'boolean',
 		default: false,
-		description: 'Whether to capture the full scrollable page instead of just the viewport',
+		description:
+			'Whether to capture the full scrollable height of the page instead of only the visible viewport. Use true for a whole-page capture, false for the top of the page. Has no effect when a Device Preset other than Custom Dimensions is selected.',
+		displayOptions: {
+			show: {
+				operation: ['screenshot'],
+			},
+		},
+	},
+	{
+		displayName: 'Download File',
+		name: 'downloadBinary',
+		type: 'boolean',
+		default: true,
+		description:
+			'Whether to download the captured file and attach it to the output item as binary data in the "data" property. Turn off to return only JSON with screenshotUrl, a public link to the stored file that works for 30 days. Off is faster and is the right setting when the node is used as an AI Agent tool, because agents receive the JSON output only.',
 		displayOptions: {
 			show: {
 				operation: ['screenshot'],
@@ -144,7 +167,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'width',
 				type: 'number',
 				default: 1280,
-				description: 'Viewport width in pixels (used when preset is "Custom Dimensions")',
+				description:
+					'Viewport width in CSS pixels, e.g. 1280 or 1920. Only applied when Device Preset is Custom Dimensions. Leave unset for the API default of 1280.',
 				typeOptions: {
 					minValue: 100,
 					maxValue: 3840,
@@ -155,7 +179,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'height',
 				type: 'number',
 				default: 800,
-				description: 'Viewport height in pixels (used when preset is "Custom Dimensions")',
+				description:
+					'Viewport height in CSS pixels, e.g. 800 or 1080. Only applied when Device Preset is Custom Dimensions. Leave unset for the API default of 800.',
 				typeOptions: {
 					minValue: 100,
 					maxValue: 16384,
@@ -166,7 +191,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'deviceFactor',
 				type: 'options',
 				default: '1',
-				description: 'Device pixel ratio (Retina displays use 2x or 3x)',
+				description:
+					'Device pixel ratio: 1 (standard), 2 (retina, twice the pixel dimensions) or 3. Keep 1 unless a sharper image is needed; higher values produce larger files.',
 				options: [
 					{
 						name: '1x (Standard)',
@@ -189,27 +215,29 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'waitUntil',
 				type: 'options',
 				default: 'networkidle2',
-				description: 'When to consider the page loaded',
+				description:
+					'Page load event to wait for before capturing: networkidle2 (default), networkidle0, domcontentloaded or load. If a capture times out on a heavy page, use domcontentloaded, which is the fastest.',
 				options: [
 					{
 						name: 'Network Idle (Recommended)',
 						value: 'networkidle2',
-						description: 'No more than 2 network connections for 500ms',
+						description: 'Default. Waits until there are at most 2 open network connections for 500 ms.',
 					},
 					{
 						name: 'Network Idle (Strict)',
 						value: 'networkidle0',
-						description: 'No network connections for 500ms',
+						description: 'Waits until there are no open network connections for 500 ms',
 					},
 					{
 						name: 'DOM Content Loaded',
 						value: 'domcontentloaded',
-						description: 'HTML fully parsed, resources may still load',
+						description:
+							'Waits until the HTML is parsed; images and other resources may still be loading. Fastest and most reliable on heavy sites.',
 					},
 					{
 						name: 'Load',
 						value: 'load',
-						description: 'Page and all resources loaded',
+						description: 'Waits until the page and its resources have loaded',
 					},
 				],
 			},
@@ -218,7 +246,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'timeWait',
 				type: 'number',
 				default: 0,
-				description: 'Additional milliseconds to wait after the page loads',
+				description:
+					'Extra time to wait after the page has loaded and before capturing, in milliseconds, e.g. 5000 for pages with animations or late-loading content. Leave at 0 to use the API default of 2000 ms.',
 				typeOptions: {
 					minValue: 0,
 					maxValue: 30000,
@@ -229,7 +258,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'scrollMotion',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to scroll through the page before capturing (triggers lazy-loaded content)',
+				description:
+					'Whether to scroll through the page before capturing so lazy-loaded content appears. The API already does this by default, so this toggle currently makes no difference whether it is on or off. Leave it unset.',
 			},
 
 			// Element Targeting
@@ -239,7 +269,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '#main-content, .hero-section',
-				description: 'CSS selector of a specific element to capture instead of the full viewport',
+				description:
+					'CSS selector of the single element to capture, e.g. #pricing or .hero. Leave empty to capture the viewport or full page. The capture fails if the selector matches nothing on the page.',
 			},
 			{
 				displayName: 'Hide Elements',
@@ -247,7 +278,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '.ads, #popup, .cookie-banner',
-				description: 'CSS selectors of elements to hide before capturing (comma-separated)',
+				description:
+					'CSS selector of elements to hide (display: none) before capturing, e.g. .ads or #popup. Separate several selectors with commas, e.g. .ads, #popup. Leave empty to hide nothing.',
 			},
 			{
 				displayName: 'Click Before Capture',
@@ -255,7 +287,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '#accept-cookies, .close-modal',
-				description: 'CSS selector of an element to click before capturing',
+				description:
+					'CSS selector of one element to click before capturing, e.g. #accept-cookies or button.close-modal. Leave empty to click nothing. The capture can fail if the selector matches nothing on the page.',
 			},
 
 			// Page Modifications
@@ -264,7 +297,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'hideCookie',
 				type: 'boolean',
 				default: true,
-				description: 'Whether to automatically hide common cookie consent banners',
+				description:
+					'Whether to hide common cookie consent banners before capturing. The API does this by default; set to false only to keep the banners visible in the capture.',
 			},
 			{
 				displayName: 'Highlight Text',
@@ -272,7 +306,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'important keyword',
-				description: 'Text to highlight with a yellow marker on the page',
+				description:
+					'Keyword or phrase to highlight wherever it appears on the page before capturing, e.g. pricing. Leave empty for no highlighting.',
 			},
 			{
 				displayName: 'Custom CSS',
@@ -280,7 +315,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'body { background: white; }',
-				description: 'Custom CSS to inject into the page before capturing',
+				description:
+					'CSS rules injected into the page before capturing, e.g. body { background: white; } or .banner { display: none; }. Leave empty to inject nothing.',
 				typeOptions: {
 					rows: 3,
 				},
@@ -291,7 +327,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: "document.querySelector('.popup').remove();",
-				description: 'JavaScript to execute on the page before capturing',
+				description:
+					'JavaScript run in the page before capturing. Example: document.querySelector(".popup").remove(). Leave empty to run nothing.',
 				typeOptions: {
 					rows: 3,
 				},
@@ -303,7 +340,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'pdfPaper',
 				type: 'options',
 				default: 'a4',
-				description: 'Paper size for PDF output',
+				description:
+					'Not currently supported by the API; has no effect. PDFs are always A4. The field is kept so saved workflows stay valid.',
 				options: [
 					{
 						name: 'Letter',
@@ -335,7 +373,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'user@example.com',
-				description: 'Email address to send the screenshot to',
+				description:
+					'Email address the API sends the capture to, e.g. user@example.com. Leave empty to send no email.',
 			},
 			{
 				displayName: 'Webhook URL',
@@ -343,7 +382,8 @@ export const screenshotProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'https://your-server.com/webhook',
-				description: 'URL to POST the screenshot result to',
+				description:
+					'Address that receives an HTTP POST with the capture result once the capture is done, e.g. https://example.com/hooks/screenshot. The node still waits for the capture and returns the result itself. Leave empty to call no webhook.',
 			},
 
 			// Filename Options
@@ -352,7 +392,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'urlFilename',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to use the captured URL as the filename instead of a random string',
+				description:
+					'Whether to name the stored image file after the captured page address instead of a random string. This only changes the file name inside screenshotUrl. Does not apply to PDF output.',
 			},
 			{
 				displayName: 'Filename Prefix',
@@ -369,7 +410,8 @@ export const screenshotProperties: INodeProperties[] = [
 				name: 'authUser',
 				type: 'string',
 				default: '',
-				description: 'Username for HTTP Basic Authentication on the target page',
+				description:
+					'Not currently supported by the API; has no effect. The value is not sent. The field is kept so saved workflows stay valid.',
 			},
 			{
 				displayName: 'HTTP Basic Auth Password',
@@ -379,7 +421,8 @@ export const screenshotProperties: INodeProperties[] = [
 					password: true,
 				},
 				default: '',
-				description: 'Password for HTTP Basic Authentication on the target page',
+				description:
+					'Not currently supported by the API; has no effect. The value is not sent. The field is kept so saved workflows stay valid.',
 			},
 		],
 	},
@@ -388,6 +431,7 @@ export const screenshotProperties: INodeProperties[] = [
 export const screenshotDescription = {
 	name: 'screenshot',
 	value: 'screenshot',
-	description: 'Capture a screenshot or PDF of a webpage',
-	action: 'Capture a screenshot of a URL',
+	description:
+		'Capture a public web page as a PNG or JPEG screenshot or an A4 PDF. Returns screenshotUrl, a public link to the stored file that works for 30 days, plus the file itself as binary data unless Download File is off. Each call uses 1 screenshot of the monthly quota, including failed captures.',
+	action: 'Capture a screenshot or PDF of a web page',
 };

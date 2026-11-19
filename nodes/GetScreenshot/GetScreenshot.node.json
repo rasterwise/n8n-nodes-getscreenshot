@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.getScreenshot",
+	"node": "n8n-nodes-getscreenshot",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Utility"],
@@ -15,7 +15,22 @@
 			}
 		]
 	},
-	"alias": ["screenshot", "capture", "webpage", "pdf", "image", "web capture"],
+	"alias": [
+		"screenshot",
+		"capture",
+		"webpage",
+		"pdf",
+		"image",
+		"web capture",
+		"website screenshot",
+		"full page screenshot",
+		"url to image",
+		"url to pdf",
+		"snapshot",
+		"thumbnail",
+		"ai agent tool",
+		"vision"
+	],
 	"subcategories": {
 		"Utility": ["Data Transformation"]
 	}

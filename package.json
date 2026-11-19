@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-getscreenshot",
-  "version": "1.0.2",
-  "description": "n8n community node for GetScreenshot API - capture screenshots and PDFs of web pages",
+  "version": "1.1.0",
+  "description": "n8n community node for the GetScreenshot API. Capture screenshots and PDFs of web pages in workflows or as an AI Agent tool.",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
@@ -9,7 +9,14 @@
     "getscreenshot",
     "web capture",
     "pdf",
-    "automation"
+    "automation",
+    "website screenshot",
+    "url to image",
+    "url to pdf",
+    "ai",
+    "ai-agent",
+    "ai-tool",
+    "mcp"
   ],
   "license": "MIT",
   "homepage": "https://getscreenshotapi.com",
@@ -32,7 +39,8 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
     "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint"
+    "test": "npm run build && node --test test/node.test.js",
+    "prepublishOnly": "npm run build && npm run lint && node --test test/node.test.js"
   },
   "files": [
     "dist"
